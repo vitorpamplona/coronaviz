@@ -79,6 +79,38 @@
                          "rgba(102, 200, 0, 1)",
                          "rgba(102, 227, 0, 1)"]  
           });
+		  
+  	    let infections = [
+  	  	  new google.maps.LatLng(42.3664398,-71.0855301),
+  		  new google.maps.LatLng(42.3664398,-71.0855301),
+  	  	  new google.maps.LatLng(42.3664398,-71.0855301),
+  	  	  new google.maps.LatLng(42.3664398,-71.0855301),
+  	  	  new google.maps.LatLng(42.3664398,-71.0855301),
+  		  new google.maps.LatLng(42.3664398,-71.0855301),
+  	  	  new google.maps.LatLng(42.3664398,-71.0855301),
+  		  new google.maps.LatLng(42.3664398,-71.0855301),
+  	  	  new google.maps.LatLng(42.3664398,-71.0855301),
+  		  new google.maps.LatLng(42.3664398,-71.0855301)
+  	    ];
+	  
+          heatmapInfections = new google.maps.visualization.HeatmapLayer({
+            data: infections,
+            map: map,
+            maxIntensity: 16,
+            radius: 20, // max infections on location
+            opacity: 1.0, 
+  		  gradient: ["rgba(102, 0, 0, 0)",
+                       "rgba(102, 0, 0, 1)",
+                       "rgba(147, 0, 0, 1)",
+                       "rgba(193, 0, 0, 1)",
+                       "rgba(238, 0, 0, 1)",
+                       "rgba(244, 0, 0, 1)",
+                       "rgba(249, 0, 0, 1)",
+                       "rgba(255, 0, 0, 1)",
+                       "rgba(255, 0, 0, 1)",
+                       "rgba(255, 0, 0, 1)",
+                       "rgba(255, 0, 0, 1)"]
+          });
 	    }
 	  }
 
@@ -88,38 +120,6 @@
           //center: {lat: 37.775, lng: -95.434},
 	      center: {lat: 42.3894132, lng:-71.1171781},
           mapTypeId: 'roadmap'
-        });
-		
-	    let infections = [
-	  	  new google.maps.LatLng(42.3664398,-71.0855301),
-		  new google.maps.LatLng(42.3664398,-71.0855301),
-	  	  new google.maps.LatLng(42.3664398,-71.0855301),
-	  	  new google.maps.LatLng(42.3664398,-71.0855301),
-	  	  new google.maps.LatLng(42.3664398,-71.0855301),
-		  new google.maps.LatLng(42.3664398,-71.0855301),
-	  	  new google.maps.LatLng(42.3664398,-71.0855301),
-		  new google.maps.LatLng(42.3664398,-71.0855301),
-	  	  new google.maps.LatLng(42.3664398,-71.0855301),
-		  new google.maps.LatLng(42.3664398,-71.0855301)
-	    ];
-	  
-        heatmap2 = new google.maps.visualization.HeatmapLayer({
-          data: infections,
-          map: map,
-          maxIntensity: 16,
-          radius: 20, // max infections on location
-          opacity: 1.0, 
-		  gradient: ["rgba(102, 0, 0, 0)",
-                     "rgba(102, 0, 0, 1)",
-                     "rgba(147, 0, 0, 1)",
-                     "rgba(193, 0, 0, 1)",
-                     "rgba(238, 0, 0, 1)",
-                     "rgba(244, 0, 0, 1)",
-                     "rgba(249, 0, 0, 1)",
-                     "rgba(255, 0, 0, 1)",
-                     "rgba(255, 0, 0, 1)",
-                     "rgba(255, 0, 0, 1)",
-                     "rgba(255, 0, 0, 1)"]
         });
       }
     </script>
