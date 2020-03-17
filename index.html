@@ -18,8 +18,7 @@
 			<form id="jsonFile" name="jsonFile" enctype="multipart/form-data" method="post">
 
 		    	<h2>2. Load the Location File</h2>
-		     	<input type='file' id='fileinput'>
-		     	<input type='button' id='btnLoad' value='Load' onclick='loadFile();'>
+		     	<input type='file' id='fileinput' onchange='loadFile();'>
 		
 			</form>
 		</div>
@@ -27,8 +26,7 @@
     <div id="map"></div>
     
     <script>
-      const maxI = 20, rad = 21, opac = 1.0;
-      var map, heatmap;
+    var map, heatmap;
 	  
 	  function loadFile() {
 	    var input, file, fr;
@@ -56,50 +54,66 @@
 	      let lines = e.target.result;
 	      var newArr = JSON.parse(lines); 
 		  
-          //let locations = newArr.locations.map((val) => {
-          //  return new google.maps.LatLng(val.latitudeE7 * (10 ** -7), val.longitudeE7 * (10 ** -7));
-          //});
+          if (newArr.locations) {
+            let locations = newArr.locations.map((val) => {
+              return new google.maps.LatLng(val.latitudeE7 * (10 ** -7), val.longitudeE7 * (10 ** -7));
+            });
+
+            heatmap = new google.maps.visualization.HeatmapLayer({
+              data: locations,
+              map: map,
+              maxIntensity: 200,
+              radius: 21,
+              opacity: 0.6,
+            });
+          }
 		  
-          let places = newArr.timelineObjects.map((val) => { 
-			  if (val.placeVisit) {
-				  return new google.maps.LatLng(val.placeVisit.location.latitudeE7 * (10 ** -7), val.placeVisit.location.longitudeE7 * (10 ** -7));
-			  } 
-          });
-		  
-          heatmap = new google.maps.visualization.HeatmapLayer({
+          if (newArr.timelineObjects) {
+            let places = newArr.timelineObjects.map((val) => { 
+              if (val.placeVisit) {
+                return new google.maps.LatLng(val.placeVisit.location.latitudeE7 * (10 ** -7), val.placeVisit.location.longitudeE7 * (10 ** -7));
+              } 
+            });
+
+            heatmap = new google.maps.visualization.HeatmapLayer({
             data: places,
             map: map,
-            maxIntensity: maxI,
-            radius: rad,
-            opacity: opac,
-			  gradient: ["rgba(102, 200, 0, 0)",
-                         "rgba(102, 200, 0, 1)",
-                         "rgba(102, 200, 0, 1)",
-                         "rgba(102, 200, 0, 1)",
-                         "rgba(102, 200, 0, 1)",
-                         "rgba(102, 227, 0, 1)"]  
-          });
+            maxIntensity: 20,
+            radius: 21,
+            opacity: 1.0,
+			        gradient: ["rgba(0, 102, 200, 0)",
+                         "rgba(0, 102, 200, 1)",
+                         "rgba(0, 102, 200, 1)",
+                         "rgba(0, 102, 200, 1)",
+                         "rgba(0, 102, 200, 1)",
+                         "rgba(0, 102, 200, 1)"]  
+            });
+          }
+		  
+        /**
+          Update this to the Infections datapoints 
+         */  
 		  
   	    let infections = [
   	  	  new google.maps.LatLng(42.3664398,-71.0855301),
-  		  new google.maps.LatLng(42.3664398,-71.0855301),
+  		    new google.maps.LatLng(42.3664398,-71.0855301),
   	  	  new google.maps.LatLng(42.3664398,-71.0855301),
   	  	  new google.maps.LatLng(42.3664398,-71.0855301),
   	  	  new google.maps.LatLng(42.3664398,-71.0855301),
-  		  new google.maps.LatLng(42.3664398,-71.0855301),
+  		    new google.maps.LatLng(42.3664398,-71.0855301),
   	  	  new google.maps.LatLng(42.3664398,-71.0855301),
-  		  new google.maps.LatLng(42.3664398,-71.0855301),
+  		    new google.maps.LatLng(42.3664398,-71.0855301),
   	  	  new google.maps.LatLng(42.3664398,-71.0855301),
-  		  new google.maps.LatLng(42.3664398,-71.0855301)
+  		    new google.maps.LatLng(42.3664398,-71.0855301)
   	    ];
 	  
-          heatmapInfections = new google.maps.visualization.HeatmapLayer({
+        heatmapInfections = new google.maps.visualization.HeatmapLayer({
             data: infections,
             map: map,
             maxIntensity: 16,
             radius: 20, // max infections on location
             opacity: 1.0, 
-  		  gradient: ["rgba(102, 0, 0, 0)",
+  		      gradient: ["rgba(102, 0, 0, 0)",
                        "rgba(102, 0, 0, 1)",
                        "rgba(147, 0, 0, 1)",
                        "rgba(193, 0, 0, 1)",
@@ -118,7 +132,7 @@
         map = new google.maps.Map(document.getElementById('map'), {
           zoom: 13,
           //center: {lat: 37.775, lng: -95.434},
-	      center: {lat: 42.3894132, lng:-71.1171781},
+	        center: {lat: 42.3894132, lng:-71.1171781},
           mapTypeId: 'roadmap'
         });
       }

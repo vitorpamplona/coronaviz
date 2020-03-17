@@ -1,2 +1,2 @@
-# geoviz
-Visualizing Location Map
+# GeoViz
+Visualizing heat maps from Google's Location History files. 
