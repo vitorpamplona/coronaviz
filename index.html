@@ -59,7 +59,7 @@
                 if (valid(entry[latIdx]) && valid(entry[longIdx])) {
                     tarr = new google.maps.LatLng(entry[latIdx], entry[longIdx]);
                     infections.push(tarr);
-                    console.log("Logging: " + entry[cityIdx] + ", " + entry[provinceIdx] + ", " + entry[countryIdx]);
+                    //console.log("Logging: " + entry[cityIdx] + ", " + entry[provinceIdx] + ", " + entry[countryIdx]);
                 } else {
                     console.log("Lat Long Not Found (" + entry[latIdx] +", " + entry[longIdx] + ") for: " + entry[cityIdx] + ", " + entry[provinceIdx] + ", " + entry[countryIdx]);
                 }
@@ -72,7 +72,7 @@
                 data: infections,
                 map: map,
                 maxIntensity: 16,
-                radius: 10, // max infections on location
+                radius: 100, // max infections on location
                 opacity: 0.7,
                 gradient: ["rgba(102, 0, 0, 0)",
                        "rgba(102, 0, 0, 1)",
