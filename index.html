@@ -29,7 +29,11 @@
     <div id="map"></div>
 
     <script>
-        function processInfections(allText) {
+        function valid(value) {
+          return value && Math.abs(value) > 0;
+        }
+
+        function processInfectionsFromLancet(allText) {
             var allTextLines = allText.split(/\r\n|\n/);
             var headings = allTextLines[0].split(',');
 
@@ -43,9 +47,9 @@
 
             var idx = 1;
             while (idx < allTextLines.length) {
-                var entry = allTextLines[idx].split(',');
-                if (entry[latIdx] && entry[longIdx]) {
-                    tarr = new google.maps.LatLng(entry[latIdx].replace(/\"/g, ''), entry[longIdx].replace(/\"/g, ''));
+                var entry = allTextLines[idx].replace(/\"/g, '').split(',');
+                if (valid(entry[latIdx]) && valid(entry[longIdx])) {
+                    tarr = new google.maps.LatLng(entry[latIdx], entry[longIdx]);
                     infections.push(tarr);
                 }
                 idx++;
@@ -147,6 +151,13 @@
                 mapTypeId: 'roadmap'
             });
 
+            /* Local Debug 
+            processInfectionsFromLancet(
+            '"ID","age","sex","city","province","country","wuhan(0)_not_wuhan(1)","latitude","longitude","geo_resolution","date_onset_symptoms","date_admission_hospital","date_confirmation","symptoms","lives_in_Wuhan","travel_history_dates","travel_history_location","reported_market_exposure","additional_information","chronic_disease_binary","chronic_disease","source","sequence_available","outcome","date_death_or_discharge","notes_for_discussion","location","admin3","admin2","admin1","country_new","admin_id","data_moderator_initials","","","","","","","","","","","","","","","","","","",""\r\n'
+            + '"1","30","male","Chaohu City, Hefei City","Anhui","China","1","31.64696","117.7166","admin3","18.01.2020","20.01.2020","22.01.2020","","yes","17.01.2020","Wuhan","","","","","http://ah.people.com.cn/GB/n2/2020/0127/c358266-33746566.html","","","","","","Chaohu City","Hefei City","Anhui","China","340181","","","","","","","","","","","","","","","","","","","",""\r\n'
+            + '"2","47","male","Baohe District, Hefei City","Anhui","China","1","31.77863","117.3319","admin3","10.01.2020","21.01.2020","23.01.2020","","no","10.01.2020","Chenzhou City, Hunan, via Wuhan","","Google mistranslates the source site as Luzhou","","","http://ah.people.com.cn/GB/n2/2020/0127/c358266-33746566.html","","","","","","Baohe District","Hefei City","Anhui","China","340111","","","","","","","","","","","","","","","","","","","",""\r\n'
+            ); */
+
             /**
               Update this to the Infections datapoints 
              */
@@ -155,7 +166,7 @@
                 url: "https://docs.google.com/spreadsheets/d/1itaohdPiAeniCXNlntNztZ_oRvjh0HsGuJXUJWET008/gviz/tq?tqx=out:csv&sheet=outside_Hubei",
                 dataType: "text",
                 success: function (data) {
-                    processInfections(data);
+                    processInfectionsFromLancet(data);
                 }
             });
         }
