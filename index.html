@@ -1,149 +1,63 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <meta charset="utf-8">
     <title>Location Heatmap</title>
     <link rel="stylesheet" href="style.css">
     <script src="jquery-3.4.1.min.js"></script>
-  </head>
-  <body>
+</head>
+
+<body>
     <div id="floating-panel">
         <div class="group">
-			<h2>1. <a href="https://takeout.google.com/settings/takeout/custom/location_history">Download</a> your 
+            <h2>1. <a href="https://takeout.google.com/settings/takeout/custom/location_history">Download</a> your 
 				<br>Location History 
 				<br>from Google
 			</h2>
         </div>
-		
-		<div class="group">
-			<form id="jsonFile" name="jsonFile" enctype="multipart/form-data" method="post">
 
-		    	<h2>2. Load the Location File</h2>
-		     	<input type='file' id='fileinput' onchange='loadFile();'>
-		
-			</form>
-		</div>
+        <div class="group">
+            <form id="jsonFile" name="jsonFile" enctype="multipart/form-data" method="post">
+
+                <h2>2. Load the Location File</h2>
+                <input type='file' id='fileinput' onchange='loadFile();'>
+
+            </form>
+        </div>
     </div>
     <div id="map"></div>
-    
+
     <script>
-    function processData(allText) {
-        var record_num = 5;  // or however many elements there are in each row
-        var allTextLines = allText.split(/\r\n|\n/);
-        var entries = allTextLines[0].split(',');
-        var lines = [];
+        function processInfections(allText) {
+            var allTextLines = allText.split(/\r\n|\n/);
+            var headings = allTextLines[0].split(',');
 
-        var headings = entries.splice(0,record_num);
+            latIdx = headings.findIndex(element => element === '"latitude"') + 1;
+            longIdx = headings.findIndex(element => element === '"longitude"') + 1;
+            symp = headings.findIndex(element => element === '"date_onset_symptoms"') + 1;
+            admission = headings.findIndex(element => element === '"date_admission_hospital"') + 1;
+            conf = headings.findIndex(element => element === '"date_confirmation"') + 1;
 
-        alert(headings)
-        /*
-        while (entries.length>0) {
-            var tarr = [];
-            for (var j=0; j<record_num; j++) {
-                tarr.push(headings[j]+":"+entries.shift());
+            var infections = [];
+
+            var idx = 1;
+            while (idx < allTextLines.length) {
+                var entry = allTextLines[idx].split(',');
+                if (entry[latIdx] && entry[longIdx]) {
+                    tarr = new google.maps.LatLng(entry[latIdx].replace(/\"/g, ''), entry[longIdx].replace(/\"/g, ''));
+                    infections.push(tarr);
+                }
+                idx++;
             }
-            lines.push(tarr);
-        }
-        */
-    }
 
-    $(document).ready(function() {
-      $.ajax({
-          type: "GET",
-          url: "https://docs.google.com/spreadsheets/d/1itaohdPiAeniCXNlntNztZ_oRvjh0HsGuJXUJWET008/gviz/tq?tqx=out:csv&sheet=outside_Hubei",
-          dataType: "text",
-          success: function(data) {processData(data);}
-        });
-    });
-
-    var map, heatmap;
-	  
-	  function loadFile() {
-	    var input, file, fr;
-
-	    if (typeof window.FileReader !== 'function') {
-	      alert("The file API isn't supported on this browser yet.");
-	      return;
-	    }
-
-	    input = document.getElementById('fileinput');
-	    if (!input) {
-	      alert("Um, couldn't find the fileinput element.");
-	    } else if (!input.files) {
-	      alert("This browser doesn't seem to support the `files` property of file inputs.");
-	    } else if (!input.files[0]) {
-	      alert("Please select a file before clicking 'Load'");
-	    } else {
-	      file = input.files[0];		  
-	      fr = new FileReader();
-	      fr.onload = receivedText;
-	      fr.readAsText(file);
-	    }
-
-	    function receivedText(e) {
-	      let lines = e.target.result;
-	      var newArr = JSON.parse(lines); 
-		  
-          if (newArr.locations) {
-            let locations = newArr.locations.map((val) => {
-              return new google.maps.LatLng(val.latitudeE7 * (10 ** -7), val.longitudeE7 * (10 ** -7));
-            });
-
-            heatmap = new google.maps.visualization.HeatmapLayer({
-              data: locations,
-              map: map,
-              maxIntensity: 200,
-              radius: 21,
-              opacity: 0.6,
-            });
-          }
-		  
-          if (newArr.timelineObjects) {
-            let places = newArr.timelineObjects.map((val) => { 
-              if (val.placeVisit) {
-                return new google.maps.LatLng(val.placeVisit.location.latitudeE7 * (10 ** -7), val.placeVisit.location.longitudeE7 * (10 ** -7));
-              } 
-            });
-
-            heatmap = new google.maps.visualization.HeatmapLayer({
-            data: places,
-            map: map,
-            maxIntensity: 20,
-            radius: 21,
-            opacity: 1.0,
-			        gradient: ["rgba(0, 102, 200, 0)",
-                         "rgba(0, 102, 200, 1)",
-                         "rgba(0, 102, 200, 1)",
-                         "rgba(0, 102, 200, 1)",
-                         "rgba(0, 102, 200, 1)",
-                         "rgba(0, 102, 200, 1)"]  
-            });
-          }
-		  
-        /**
-          Update this to the Infections datapoints 
-         */  
-		  
-  	    let infections = [
-  	  	  new google.maps.LatLng(42.3664398,-71.0855301),
-  		    new google.maps.LatLng(42.3664398,-71.0855301),
-  	  	  new google.maps.LatLng(42.3664398,-71.0855301),
-  	  	  new google.maps.LatLng(42.3664398,-71.0855301),
-  	  	  new google.maps.LatLng(42.3664398,-71.0855301),
-  		    new google.maps.LatLng(42.3664398,-71.0855301),
-  	  	  new google.maps.LatLng(42.3664398,-71.0855301),
-  		    new google.maps.LatLng(42.3664398,-71.0855301),
-  	  	  new google.maps.LatLng(42.3664398,-71.0855301),
-  		    new google.maps.LatLng(42.3664398,-71.0855301)
-  	    ];
-	  
-        heatmapInfections = new google.maps.visualization.HeatmapLayer({
-            data: infections,
-            map: map,
-            maxIntensity: 16,
-            radius: 20, // max infections on location
-            opacity: 1.0, 
-  		      gradient: ["rgba(102, 0, 0, 0)",
+            heatmapInfections = new google.maps.visualization.HeatmapLayer({
+                data: infections,
+                map: map,
+                maxIntensity: 16,
+                radius: 10, // max infections on location
+                opacity: 1.0,
+                gradient: ["rgba(102, 0, 0, 0)",
                        "rgba(102, 0, 0, 1)",
                        "rgba(147, 0, 0, 1)",
                        "rgba(193, 0, 0, 1)",
@@ -154,21 +68,101 @@
                        "rgba(255, 0, 0, 1)",
                        "rgba(255, 0, 0, 1)",
                        "rgba(255, 0, 0, 1)"]
-          });
-	    }
-	  }
+            });
+        }
 
-      function initMap() {
-        map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 13,
-          //center: {lat: 37.775, lng: -95.434},
-	        center: {lat: 42.3894132, lng:-71.1171781},
-          mapTypeId: 'roadmap'
-        });
-      }
+        var map, heatmap;
+
+        function loadFile() {
+            var input, file, fr;
+
+            if (typeof window.FileReader !== 'function') {
+                alert("The file API isn't supported on this browser yet.");
+                return;
+            }
+
+            input = document.getElementById('fileinput');
+            if (!input) {
+                alert("Um, couldn't find the fileinput element.");
+            } else if (!input.files) {
+                alert("This browser doesn't seem to support the `files` property of file inputs.");
+            } else if (!input.files[0]) {
+                alert("Please select a file before clicking 'Load'");
+            } else {
+                file = input.files[0];
+                fr = new FileReader();
+                fr.onload = receivedText;
+                fr.readAsText(file);
+            }
+
+            function receivedText(e) {
+                let lines = e.target.result;
+                var newArr = JSON.parse(lines);
+
+                if (newArr.locations) {
+                    let locations = newArr.locations.map((val) => {
+                        return new google.maps.LatLng(val.latitudeE7 * (10 ** -7), val.longitudeE7 * (10 ** -7));
+                    });
+
+                    heatmap = new google.maps.visualization.HeatmapLayer({
+                        data: locations,
+                        map: map,
+                        maxIntensity: 200,
+                        radius: 21,
+                        opacity: 0.6,
+                    });
+                }
+
+                if (newArr.timelineObjects) {
+                    let places = newArr.timelineObjects.map((val) => {
+                        if (val.placeVisit) {
+                            return new google.maps.LatLng(val.placeVisit.location.latitudeE7 * (10 ** -7), val.placeVisit.location.longitudeE7 * (10 ** -7));
+                        }
+                    });
+
+                    heatmap = new google.maps.visualization.HeatmapLayer({
+                        data: places,
+                        map: map,
+                        maxIntensity: 20,
+                        radius: 21,
+                        opacity: 1.0,
+                        gradient: ["rgba(0, 102, 200, 0)",
+                         "rgba(0, 102, 200, 1)",
+                         "rgba(0, 102, 200, 1)",
+                         "rgba(0, 102, 200, 1)",
+                         "rgba(0, 102, 200, 1)",
+                         "rgba(0, 102, 200, 1)"]
+                    });
+                }
+            }
+        }
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 3,
+                center: {
+                    lat: 0,
+                    lng: 0
+                },
+                mapTypeId: 'roadmap'
+            });
+
+            /**
+              Update this to the Infections datapoints 
+             */
+            $.ajax({
+                type: "GET",
+                url: "https://docs.google.com/spreadsheets/d/1itaohdPiAeniCXNlntNztZ_oRvjh0HsGuJXUJWET008/gviz/tq?tqx=out:csv&sheet=outside_Hubei",
+                dataType: "text",
+                success: function (data) {
+                    processInfections(data);
+                }
+            });
+        }
     </script>
-	  
+
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAnsJiBidtS98aT4H_XcphFEyFeJUeDa3w&libraries=visualization&callback=initMap">
     </script>
-  </body>
+</body>
+
 </html>
