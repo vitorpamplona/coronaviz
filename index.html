@@ -71,8 +71,8 @@
             heatmapInfections = new google.maps.visualization.HeatmapLayer({
                 data: infections,
                 map: map,
-                maxIntensity: 16,
-                radius: 100, // max infections on location
+                maxIntensity: 100, // max infections on location
+                radius: 10, 
                 opacity: 0.7,
                 gradient: ["rgba(102, 0, 0, 0)",
                        "rgba(102, 0, 0, 1)",
