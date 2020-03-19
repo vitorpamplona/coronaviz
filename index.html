@@ -50,7 +50,7 @@
             input = document.getElementById('calculate');
             input.innerHTML = "Progress: " + value + "%";
         }
-        
+
         const calculateIntersections = () => {
             risk = intersect(myLocations, infectedLocations, progress);
 
@@ -156,9 +156,9 @@
         }
 
         function initMap() {
-            if (navigator.geolocation) {
-              navigator.geolocation.getCurrentPosition(showPosition);
-            }
+            //if (navigator.geolocation) {
+            //  navigator.geolocation.getCurrentPosition(showPosition);
+            //}
 
             map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 3,
