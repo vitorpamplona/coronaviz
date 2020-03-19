@@ -59,9 +59,9 @@
                 if (valid(entry[latIdx]) && valid(entry[longIdx])) {
                     tarr = new google.maps.LatLng(entry[latIdx], entry[longIdx]);
                     infections.push(tarr);
-                    console.log("Logging: " + entry[cityIdx] + ", " + + entry[provinceIdx] + ", " + entry[countryIdx]);
+                    console.log("Logging: " + entry[cityIdx] + ", " + entry[provinceIdx] + ", " + entry[countryIdx]);
                 } else {
-                    console.log("Lat Long Not Found for: " + entry[cityIdx] + ", " + + entry[provinceIdx] + ", " + entry[countryIdx]);
+                    console.log("Lat Long Not Found (" + entry[latIdx] +", " + entry[longIdx] + ") for: " + entry[cityIdx] + ", " + entry[provinceIdx] + ", " + entry[countryIdx]);
                 }
                 idx++;
             }
