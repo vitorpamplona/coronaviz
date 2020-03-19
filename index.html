@@ -3,13 +3,23 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Location Heatmap</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="jquery-3.4.1.min.js"></script>
+
+    <title>Corona Virus Intersect</title>
+
+    <link rel="stylesheet" href="./css/style.css">
+    <script src="./js/jquery-3.4.1.min.js"></script>
+    <script src="./js/lancet_processing.js"></script>
+    <script src="./js/google_processor.js"></script>
+    <script src="./js/intersect.js"></script>
 </head>
 
 <body>
     <div id="floating-panel">
+        <div class="group">
+            <h2 style="background-color: rgba(238, 0, 0, 1); padding:5px;">Infected</h2>
+            <h2 style="background-color: rgba(0, 102, 200, 1); padding:5px;">YOU</h2>
+        </div>
+
         <div class="group">
             <h2>1. <a href="https://takeout.google.com/settings/takeout/custom/location_history">Download</a> your 
 				<br>Location History 
@@ -19,57 +29,34 @@
 
         <div class="group">
             <form id="jsonFile" name="jsonFile" enctype="multipart/form-data" method="post">
-
                 <h2>2. Load the Location File</h2>
                 <input type='file' id='fileinput' onchange='loadFile();'>
+            </form>
+        </div>
 
+        <div class="group">
+            <form id="jsonFile" name="jsonFile" enctype="multipart/form-data" method="post">
+                <h2>3. Calculate Intersections</h2>
+                <button type='button' id='calculate' value="" onClick='calculateIntersections();'>Calculate</button>
             </form>
         </div>
     </div>
     <div id="map"></div>
 
     <script>
-        function valid(value) {
-          return value && Math.abs(value) > 0;
-        }
+        var map, heatmap, heatmapInfections, myLocations, infectedLocations;
 
-        function processInfectionsFromLancet(allText) {
-            var allTextLines = allText.split(/\r\n|\n/);
+        function calculateIntersections() {
+            risk = intersect(myLocations, infectedLocations);
 
-            console.log("Importing Locations: " + allTextLines.length);
+            heatmapInfections.setMap(null);
+            heatmap.setMap(null);
 
-            var headings = allTextLines[0].split(',');
-
-            latIdx = headings.findIndex(element => element === '"latitude"');
-            longIdx = headings.findIndex(element => element === '"longitude"');
-            symp = headings.findIndex(element => element === '"date_onset_symptoms"');
-            admission = headings.findIndex(element => element === '"date_admission_hospital"');
-            conf = headings.findIndex(element => element === '"date_confirmation"');
-
-            cityIdx = headings.findIndex(element => element === '"city"');
-            provinceIdx = headings.findIndex(element => element === '"province"');
-            countryIdx = headings.findIndex(element => element === '"country"');
-            		
-
-            var infections = [];
-
-            var idx = 1;
-            while (idx < allTextLines.length) {
-                var entry = allTextLines[idx].replace(/\",\"/g, '\"\t\"').replace(/\"/g, '').split('\t');
-                if (valid(entry[latIdx]) && valid(entry[longIdx])) {
-                    tarr = new google.maps.LatLng(entry[latIdx], entry[longIdx]);
-                    infections.push(tarr);
-                    //console.log("Logging: " + entry[cityIdx] + ", " + entry[provinceIdx] + ", " + entry[countryIdx]);
-                } else {
-                    console.log("Lat Long Not Found (" + entry[latIdx] +", " + entry[longIdx] + ") for: " + entry[cityIdx] + ", " + entry[provinceIdx] + ", " + entry[countryIdx]);
-                }
-                idx++;
-            }
-
-            console.log("Infections Found: " + infections.length);
-
+            gData = risk.map((val) => {
+                return new google.maps.LatLng(val.lat, val.long);
+            });
             heatmapInfections = new google.maps.visualization.HeatmapLayer({
-                data: infections,
+                data: gData,
                 map: map,
                 maxIntensity: 100, // max infections on location
                 radius: 10, 
@@ -88,9 +75,9 @@
             });
         }
 
-        var map, heatmap;
-
         function loadFile() {
+            loadFile
+
             var input, file, fr;
 
             if (typeof window.FileReader !== 'function') {
@@ -113,56 +100,54 @@
             }
 
             function receivedText(e) {
-                let lines = e.target.result;
-                var newArr = JSON.parse(lines);
-
-                if (newArr.locations) {
-                    let locations = newArr.locations.map((val) => {
-                        return new google.maps.LatLng(val.latitudeE7 * (10 ** -7), val.longitudeE7 * (10 ** -7));
-                    });
-
-                    heatmap = new google.maps.visualization.HeatmapLayer({
-                        data: locations,
-                        map: map,
-                        maxIntensity: 200,
-                        radius: 10,
-                        opacity: 0.6,
-                        gradient: ["rgba(0, 102, 200, 0)",
-                         "rgba(0, 102, 200, 1)",
-                         "rgba(0, 102, 200, 1)",
-                         "rgba(0, 102, 200, 1)",
-                         "rgba(0, 102, 200, 1)",
-                         "rgba(0, 102, 200, 1)"]
-                    });
-                }
-
-                if (newArr.timelineObjects) {
-                    let places = newArr.timelineObjects.map((val) => {
-                        if (val.placeVisit) {
-                            return new google.maps.LatLng(val.placeVisit.location.latitudeE7 * (10 ** -7), val.placeVisit.location.longitudeE7 * (10 ** -7));
-                        }
-                    });
-
-                    heatmap = new google.maps.visualization.HeatmapLayer({
-                        data: places,
-                        map: map,
-                        maxIntensity: 20,
-                        radius: 10,
-                        opacity: 1.0,
-                        gradient: ["rgba(0, 102, 200, 0)",
-                         "rgba(0, 102, 200, 1)",
-                         "rgba(0, 102, 200, 1)",
-                         "rgba(0, 102, 200, 1)",
-                         "rgba(0, 102, 200, 1)",
-                         "rgba(0, 102, 200, 1)"]
-                    });
-                }
+                myLocations = processGoogleTakout(e.target.result);
+                gData = myLocations.map((val) => {
+                    return new google.maps.LatLng(val.lat, val.long);
+                });
+                heatmap = new google.maps.visualization.HeatmapLayer({
+                    data: gData,
+                    map: map,
+                    maxIntensity: 200,
+                    radius: 10,
+                    opacity: 0.6,
+                    gradient: ["rgba(0, 102, 200, 0)",
+                        "rgba(0, 102, 200, 1)",
+                        "rgba(0, 102, 200, 1)",
+                        "rgba(0, 102, 200, 1)",
+                        "rgba(0, 102, 200, 1)",
+                        "rgba(0, 102, 200, 1)"]
+                });
             }
         }
 
         function showPosition(position) {
             map.setCenter({lat:position.coords.latitude, lng:position.coords.longitude});
             map.setZoom(12);
+        }
+
+        function buildInfectionLayer(infections) {
+            infectedLocations = infections;
+            gData = infectedLocations.map((val) => {
+                return new google.maps.LatLng(val.lat, val.long);
+            });
+            heatmapInfections = new google.maps.visualization.HeatmapLayer({
+                data: gData,
+                map: map,
+                maxIntensity: 100, // max infections on location
+                radius: 10, 
+                opacity: 0.7,
+                gradient: ["rgba(102, 0, 0, 0)",
+                       "rgba(102, 0, 0, 1)",
+                       "rgba(147, 0, 0, 1)",
+                       "rgba(193, 0, 0, 1)",
+                       "rgba(238, 0, 0, 1)",
+                       "rgba(244, 0, 0, 1)",
+                       "rgba(249, 0, 0, 1)",
+                       "rgba(255, 0, 0, 1)",
+                       "rgba(255, 0, 0, 1)",
+                       "rgba(255, 0, 0, 1)",
+                       "rgba(255, 0, 0, 1)"]
+            });
         }
 
         function initMap() {
@@ -179,18 +164,7 @@
                 mapTypeId: 'roadmap'
             });
 
-            /**
-              Update this to the Infections datapoints 
-            */ 
-            $.ajax({
-                type: "GET",
-                url: "https://vitorpamplona.com/coronaviz/data.csv",
-                //url: "https://docs.google.com/spreadsheets/d/1itaohdPiAeniCXNlntNztZ_oRvjh0HsGuJXUJWET008/gviz/tq?tqx=out:csv&sheet=outside_Hubei",
-                dataType: "text",
-                success: function (data) {
-                    processInfectionsFromLancet(data);
-                }
-            });
+            loadLancet(buildInfectionLayer);
         }
     </script>
 

@@ -30,3 +30,22 @@ html, body {
 #radiusNum, #intensityNum, #opacityNum {
   font-weight: 800;
 }
+
+button {
+  padding: 0;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  color: #4c3b4d;
+  border: 1px solid #4c3b4d;
+  border-radius: 5px;
+  padding: 10px 20px;
+  outline: 1px dotted black;
+  background-color: #4f5165;
+  font-weight: 500;
+  color: white;
+}
+
+button:focus {
+  outline: 0;
+}
