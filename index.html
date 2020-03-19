@@ -48,10 +48,10 @@
 
         function progress(value) {
             input = document.getElementById('calculate');
-            input.value= "Progress: " + value + "%";
+            input.innerHTML = "Progress: " + value + "%";
         }
-
-        function calculateIntersections() {
+        
+        const calculateIntersections = () => {
             risk = intersect(myLocations, infectedLocations, progress);
 
             heatmapInfections.setMap(null);

@@ -28,8 +28,10 @@ function intersect(myLocations, infectedLocations, progress) {
         if (contacts > 0) {
             risk.push(myLocations[i]);
         }
-        progress(Math.trunc(i*100.00/myLocations.length));
+        progress(Math.trunc(i*10000.00/myLocations.length)/100);
     }
+
+    progress(100);
 
     console.log("Found " + risk.length + " risks");
 
