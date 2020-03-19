@@ -70,8 +70,8 @@ function processInfectionsFromLancet(allCSV) {
 function loadLancet(onSucess) {
     $.ajax({
         type: "GET",
-        url: "https://vitorpamplona.com/coronaviz/data.csv",
-        //url: "https://docs.google.com/spreadsheets/d/1itaohdPiAeniCXNlntNztZ_oRvjh0HsGuJXUJWET008/gviz/tq?tqx=out:csv&sheet=outside_Hubei",
+        //url: "https://vitorpamplona.com/coronaviz/data.csv",
+        url: "https://docs.google.com/spreadsheets/d/1itaohdPiAeniCXNlntNztZ_oRvjh0HsGuJXUJWET008/gviz/tq?tqx=out:csv&sheet=outside_Hubei",
         dataType: "text",
         success: function (data) {
             onSucess(processInfectionsFromLancet(data));
