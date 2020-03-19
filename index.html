@@ -55,7 +55,7 @@
 
             var idx = 1;
             while (idx < allTextLines.length) {
-                var entry = allTextLines[idx].replace(/\"/g, '').split(',');
+                var entry = allTextLines[idx].replace(/\",\"/g, '\"\t\"').replace(/\"/g, '').split('\t');
                 if (valid(entry[latIdx]) && valid(entry[longIdx])) {
                     tarr = new google.maps.LatLng(entry[latIdx], entry[longIdx]);
                     infections.push(tarr);
@@ -188,7 +188,7 @@
 
             /**
               Update this to the Infections datapoints 
-             */
+            */ 
             $.ajax({
                 type: "GET",
                 url: "https://vitorpamplona.com/geoviz/data.csv",
