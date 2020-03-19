@@ -46,8 +46,13 @@
     <script>
         var map, heatmap, heatmapInfections, myLocations, infectedLocations;
 
+        function progress(value) {
+            input = document.getElementById('calculate');
+            input.value= "Progress: " + value + "%";
+        }
+
         function calculateIntersections() {
-            risk = intersect(myLocations, infectedLocations);
+            risk = intersect(myLocations, infectedLocations, progress);
 
             heatmapInfections.setMap(null);
             heatmap.setMap(null);

@@ -2,10 +2,10 @@
     Process Google Location History Takeout Files 
 */ 
 
-const STARTING_DATE = new Date("Dec 1, 2019 00:00:00:000").getMilliseconds();
+const STARTING_DATE = new Date("Dec 1, 2019 00:00:00:000").getTime();
 
 function processGoogleTakout(lines) {
-    console.log("Importing My Locations after Dec 1, 2019 00:00:00:000");
+    console.log("Importing My Locations after Dec 1, 2019 00:00:00:000: " + STARTING_DATE);
 
     var newArr = JSON.parse(lines);
     var locations = [];
@@ -13,7 +13,7 @@ function processGoogleTakout(lines) {
     if (newArr.locations) {
         console.log("Locations ", newArr.locations.length);
         for (var i=0; i<newArr.locations.length; i++) {
-            //console.log("Locations ", newArr.locations[i]);
+            //console.log("Locations ", newArr.locations[i].timestampMs);
             if (newArr.locations[i].timestampMs > STARTING_DATE) {
                 locations.push( 
                     {lat: newArr.locations[i].latitudeE7 * (10 ** -7), 

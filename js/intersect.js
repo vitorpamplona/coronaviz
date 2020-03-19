@@ -5,18 +5,18 @@
 
  */
 const DIFF_1_DAY = 24 * 60 * 60 * 1000;
-const DIFF_1_KM = 0.01 * 100; 
+const DIFF_1_KM = 0.01; 
 
 function contact(myLoc, inLoc) {
-    return Math.abs(myLoc.lat - inLoc.lat) < DIFF_1_KM 
-        && Math.abs(myLoc.long - inLoc.long) < DIFF_1_KM;
+    return Math.abs(myLoc.lat - inLoc.lat) < DIFF_1_KM * 10
+        && Math.abs(myLoc.long - inLoc.long) < DIFF_1_KM * 10;
         //&& Math.abs(myLoc.time - inLoc.time) < DIFF_1_DAY;
 }
 
-function intersect(myLocations, infectedLocations) {
+function intersect(myLocations, infectedLocations, progress) {
     console.log("Calculating Intersections");
     
-    var risk = []
+    var risk = [];
     // brute force
     for (var i = 0; i < myLocations.length; i++) {
         var contacts = 0;
@@ -28,6 +28,7 @@ function intersect(myLocations, infectedLocations) {
         if (contacts > 0) {
             risk.push(myLocations[i]);
         }
+        progress(Math.trunc(i*100.00/myLocations.length));
     }
 
     console.log("Found " + risk.length + " risks");
