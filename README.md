@@ -1,2 +1,5 @@
-# GeoViz
-Visualizing heat maps from Google's Location History files. 
+# CoronaViz
+
+Simple app to vizualize the location of the infected people, compare with your own trails and calculate intersetions between the two datasets. All processing happens in JavaScript (quite slow). 
+
+App available at: http://vitorpamplona.com/coronaviz/
