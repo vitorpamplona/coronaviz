@@ -40,15 +40,15 @@
 
             var headings = allTextLines[0].split(',');
 
-            latIdx = headings.findIndex(element => element === '"latitude"') + 1;
-            longIdx = headings.findIndex(element => element === '"longitude"') + 1;
-            symp = headings.findIndex(element => element === '"date_onset_symptoms"') + 1;
-            admission = headings.findIndex(element => element === '"date_admission_hospital"') + 1;
-            conf = headings.findIndex(element => element === '"date_confirmation"') + 1;
+            latIdx = headings.findIndex(element => element === '"latitude"');
+            longIdx = headings.findIndex(element => element === '"longitude"');
+            symp = headings.findIndex(element => element === '"date_onset_symptoms"');
+            admission = headings.findIndex(element => element === '"date_admission_hospital"');
+            conf = headings.findIndex(element => element === '"date_confirmation"');
 
-            cityIdx = headings.findIndex(element => element === '"city"') + 1;
-            provinceIdx = headings.findIndex(element => element === '"province"') + 1;
-            countryIdx = headings.findIndex(element => element === '"country"') + 1;
+            cityIdx = headings.findIndex(element => element === '"city"');
+            provinceIdx = headings.findIndex(element => element === '"province"');
+            countryIdx = headings.findIndex(element => element === '"country"');
             		
 
             var infections = [];
