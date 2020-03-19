@@ -35,6 +35,9 @@
 
         function processInfectionsFromLancet(allText) {
             var allTextLines = allText.split(/\r\n|\n/);
+
+            console.log("Importing Locations: " + allText.length);
+
             var headings = allTextLines[0].split(',');
 
             latIdx = headings.findIndex(element => element === '"latitude"') + 1;
@@ -54,6 +57,8 @@
                 }
                 idx++;
             }
+
+            console.log("Infections Found: " + infections.length);
 
             heatmapInfections = new google.maps.visualization.HeatmapLayer({
                 data: infections,
