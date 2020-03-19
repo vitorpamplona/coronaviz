@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>Location Heatmap</title>
     <link rel="stylesheet" href="style.css">
+    <script src="jquery-3.4.1.min.js"></script>
   </head>
   <body>
     <div id="floating-panel">
@@ -26,6 +27,35 @@
     <div id="map"></div>
     
     <script>
+    function processData(allText) {
+        var record_num = 5;  // or however many elements there are in each row
+        var allTextLines = allText.split(/\r\n|\n/);
+        var entries = allTextLines[0].split(',');
+        var lines = [];
+
+        var headings = entries.splice(0,record_num);
+
+        alert(headings)
+        /*
+        while (entries.length>0) {
+            var tarr = [];
+            for (var j=0; j<record_num; j++) {
+                tarr.push(headings[j]+":"+entries.shift());
+            }
+            lines.push(tarr);
+        }
+        */
+    }
+
+    $(document).ready(function() {
+      $.ajax({
+          type: "GET",
+          url: "https://docs.google.com/spreadsheets/d/1itaohdPiAeniCXNlntNztZ_oRvjh0HsGuJXUJWET008/gviz/tq?tqx=out:csv&sheet=outside_Hubei",
+          dataType: "text",
+          success: function(data) {processData(data);}
+        });
+    });
+
     var map, heatmap;
 	  
 	  function loadFile() {
