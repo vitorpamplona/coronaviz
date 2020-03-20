@@ -52,7 +52,7 @@
         }
 
         const calculateIntersections = () => {
-            risk = intersect(myLocations, infectedLocations, progress);
+            risk = intersectByDate(myLocations, infectedLocations, progress);
 
             heatmapInfections.setMap(null);
             heatmap.setMap(null);

@@ -13,7 +13,47 @@ function contact(myLoc, inLoc) {
         //&& Math.abs(myLoc.time - inLoc.time) < DIFF_1_DAY;
 }
 
+function group_by_date(locations) {
+    var days = new Map();
+    for (var i = 0; i < locations.length; i++) {
+        var dayStr = new Date(locations[i].time).toISOString().substring(0, 7);
+        
+        var daySet = days.get(dayStr);
+        if (daySet) {
+            daySet.push(locations[i]);
+        } else {
+            days.set(dayStr, [locations[i]]);
+        }
+    }
+
+    return days;
+}
+
+function intersectByDate(myLocations, infectedLocations, progress) {
+    console.log("Calculating Intersections By Date");
+    var locByDate = group_by_date(myLocations);
+    var infByDate = group_by_date(infectedLocations);
+
+    console.log("Grouped");
+
+    var risk = [];
+
+    for (const [dayStr, myLocations] of locByDate.entries()) {
+        console.log("Date ", dayStr);
+        infectedLocations = infByDate.get(dayStr);
+        risk = risk.concat(intersect(myLocations, infectedLocations, progress));
+    }
+
+    console.log("Risk Calculated " + risk.length);
+
+    return risk;
+}
+
+// brute force
 function intersect(myLocations, infectedLocations, progress) {
+    if (!myLocations) return [];
+    if (!infectedLocations) return [];
+
     console.log("Calculating Intersections");
     
     var risk = [];

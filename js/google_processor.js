@@ -18,7 +18,7 @@ function processGoogleTakout(lines) {
                 locations.push( 
                     {lat: newArr.locations[i].latitudeE7 * (10 ** -7), 
                     long: newArr.locations[i].longitudeE7 * (10 ** -7),
-                    time: newArr.locations[i].timestampMs} );
+                    time: parseInt(newArr.locations[i].timestampMs)} );
             }
         }    
     }
@@ -32,7 +32,7 @@ function processGoogleTakout(lines) {
                     locations.push( 
                        {lat: newArr.timelineObjects[i].placeVisit.location.latitudeE7 * (10 ** -7), 
                        long: newArr.timelineObjects[i].placeVisit.location.longitudeE7 * (10 ** -7), 
-                       time: newArr.timelineObjects[i].placeVisit.duration.startTimestampMs} );
+                       time: parseInt(newArr.timelineObjects[i].placeVisit.duration.startTimestampMs)} );
                 }
             } 
 
@@ -41,7 +41,7 @@ function processGoogleTakout(lines) {
                     locations.push(
                         {lat: newArr.timelineObjects[i].activitySegment.startLocation.latitudeE7 * (10 ** -7), 
                         long: newArr.timelineObjects[i].activitySegment.startLocation.longitudeE7 * (10 ** -7), 
-                        time: newArr.timelineObjects[i].activitySegment.duration.startTimestampMs} );
+                        time: parseInt(newArr.timelineObjects[i].activitySegment.duration.startTimestampMs)} );
                 }
             } 
         }

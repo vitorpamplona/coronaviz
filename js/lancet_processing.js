@@ -11,7 +11,7 @@ function valid(value) {
 function milliDate(date) {
     var pattern = /(\d{2})\.(\d{2})\.(\d{4})/;
     var dt = new Date(date.replace(pattern,'$3-$2-$1'));
-    return dt.getMilliseconds();
+    return dt.getTime();
 }
 
 function oneDate(date1, date2, date3) {
@@ -49,11 +49,11 @@ function processInfectionsFromLancet(allCSV) {
     var idx = 1;
     while (idx < allTextLines.length) {
         var entry = allTextLines[idx].replace(/\",\"/g, '\"\t\"').replace(/\"/g, '').split('\t');
-        if (valid(entry[latIdx]) && valid(entry[longIdx])) {
+        if (valid(entry[latIdx]) && valid(entry[longIdx]) && oneDate(entry[symp], entry[admission], entry[conf])) {
             infections.push(
                 {lat: entry[latIdx], 
                 long: entry[longIdx], 
-                time: oneDate(symp, admission, conf)} 
+                time: parseInt(oneDate(entry[symp], entry[admission], entry[conf]))} 
             );
             //console.log("Logging: " + entry[cityIdx] + ", " + entry[provinceIdx] + ", " + entry[countryIdx]);
         } else {
@@ -70,8 +70,8 @@ function processInfectionsFromLancet(allCSV) {
 function loadLancet(onSucess) {
     $.ajax({
         type: "GET",
-        //url: "https://vitorpamplona.com/coronaviz/data.csv",
-        url: "https://docs.google.com/spreadsheets/d/1itaohdPiAeniCXNlntNztZ_oRvjh0HsGuJXUJWET008/gviz/tq?tqx=out:csv&sheet=outside_Hubei",
+        url: "https://vitorpamplona.com/coronaviz/data.csv",
+        //url: "https://docs.google.com/spreadsheets/d/1itaohdPiAeniCXNlntNztZ_oRvjh0HsGuJXUJWET008/gviz/tq?tqx=out:csv&sheet=outside_Hubei",
         dataType: "text",
         success: function (data) {
             onSucess(processInfectionsFromLancet(data));
