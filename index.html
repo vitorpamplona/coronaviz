@@ -8,9 +8,6 @@
 
     <link rel="stylesheet" href="./css/style.css">
     <script src="./js/jquery-3.4.1.min.js"></script>
-    <script src="./js/lancet_processing.js"></script>
-    <script src="./js/google_processor.js"></script>
-    <script src="./js/intersect.js"></script>
 </head>
 
 <body>
@@ -40,44 +37,76 @@
                 <button type='button' id='calculate' value="" onClick='calculateIntersections();'>Calculate</button>
             </form>
         </div>
+
+        <div class="group">
+            <div class="slidecontainer">
+                <h2>4. Explore by date</h2>
+                Date: <span id="dateSelected">All</span>
+                <input type="range" min="0" max="100" value="100" class="slider" id="timelineSlider" oninput='onSliderChange();'>
+            </div>
+        </div>
     </div>
+
     <div id="map"></div>
 
     <script>
-        var map, heatmap, heatmapInfections, myLocations, infectedLocations;
+        var map; 
+        var heatmap, heatmapInfections, heatmapIntersections;
+        var heatmapsInfectionsDay = [];
+        var heatmapInfectionsDay;
+        var myLocations, infectedLocations;
+        var infectedLocationsByDate, myLocationsByDate;
+        var infectedDates;
 
         function progress(value) {
             input = document.getElementById('calculate');
             input.innerHTML = "Progress: " + value + "%";
         }
 
+        function resetCalculateButton() {
+            input = document.getElementById('calculate');
+            input.innerHTML = "Calculate";
+
+            heatmapInfections.setMap(map);
+        }
+
         const calculateIntersections = () => {
             risk = intersectByDate(myLocations, infectedLocations, progress);
 
+            input = document.getElementById('calculate');
+            if (risk.length < 1) {
+                input.innerHTML = "Safe: Contacts " + risk.length;
+            } else {
+                input.innerHTML = "Risk: Contacts " + risk.length;
+            }
+
             heatmapInfections.setMap(null);
             heatmap.setMap(null);
-
-            gData = risk.map((val) => {
-                return new google.maps.LatLng(val.lat, val.long);
-            });
-            heatmapInfections = new google.maps.visualization.HeatmapLayer({
-                data: gData,
-                map: map,
-                maxIntensity: 100, // max infections on location
-                radius: 10, 
-                opacity: 0.7,
-                gradient: ["rgba(102, 0, 0, 0)",
-                       "rgba(102, 0, 0, 1)",
-                       "rgba(147, 0, 0, 1)",
-                       "rgba(193, 0, 0, 1)",
-                       "rgba(238, 0, 0, 1)",
-                       "rgba(244, 0, 0, 1)",
-                       "rgba(249, 0, 0, 1)",
-                       "rgba(255, 0, 0, 1)",
-                       "rgba(255, 0, 0, 1)",
-                       "rgba(255, 0, 0, 1)",
-                       "rgba(255, 0, 0, 1)"]
-            });
+            if (heatmapInfectionsDay != null)
+                heatmapInfectionsDay.setMap(null);
+            
+            if (heatmapIntersections) {
+                heatmapIntersections.setData(risk);
+            } else {
+                heatmapIntersections = new google.maps.visualization.HeatmapLayer({
+                    data: risk,
+                    map: map,
+                    maxIntensity: 100, // max infections on location
+                    radius: 10, 
+                    opacity: 0.7,
+                    gradient: ["rgba(102, 0, 0, 0)",
+                        "rgba(102, 0, 0, 1)",
+                        "rgba(147, 0, 0, 1)",
+                        "rgba(193, 0, 0, 1)",
+                        "rgba(238, 0, 0, 1)",
+                        "rgba(244, 0, 0, 1)",
+                        "rgba(249, 0, 0, 1)",
+                        "rgba(255, 0, 0, 1)",
+                        "rgba(255, 0, 0, 1)",
+                        "rgba(255, 0, 0, 1)",
+                        "rgba(255, 0, 0, 1)"]
+                });
+            }
         }
 
         function loadFile() {
@@ -105,12 +134,11 @@
             }
 
             function receivedText(e) {
+                resetCalculateButton();
+
                 myLocations = processGoogleTakout(e.target.result);
-                gData = myLocations.map((val) => {
-                    return new google.maps.LatLng(val.lat, val.long);
-                });
                 heatmap = new google.maps.visualization.HeatmapLayer({
-                    data: gData,
+                    data: myLocations,
                     map: map,
                     maxIntensity: 200,
                     radius: 10,
@@ -130,13 +158,41 @@
             map.setZoom(12);
         }
 
+        function getSlider() {
+            return document.getElementById('timelineSlider');
+        }
+
+        function onSliderChange(event) {
+            dateTxt = document.getElementById('dateSelected');
+            if (infectedDates[getSlider().value])
+                dateTxt.innerHTML = infectedDates[getSlider().value];
+            else
+                dateTxt.innerHTML = "All";
+
+            buildCurrentDayLayer(infectedDates[getSlider().value]);
+        }
+
+        function buildCurrentDayLayer(dateStr) {
+            if (heatmapInfectionsDay != null)
+                heatmapInfectionsDay.setMap(null);
+
+            if (dateStr) {
+                heatmapInfectionsDay = heatmapsInfectionsDay[getSlider().value];
+                heatmapInfectionsDay.setMap(map);
+            } 
+        }
+    
         function buildInfectionLayer(infections) {
             infectedLocations = infections;
-            gData = infectedLocations.map((val) => {
-                return new google.maps.LatLng(val.lat, val.long);
-            });
+            infectedLocationsByDate = group_by_date(infectedLocations);
+            infectedDates = Array.from( infectedLocationsByDate.keys() );
+            infectedDates.sort();
+
+            getSlider().max = infectedDates.length;
+            getSlider().value = infectedDates.length;
+
             heatmapInfections = new google.maps.visualization.HeatmapLayer({
-                data: gData,
+                data: infectedLocations,
                 map: map,
                 maxIntensity: 100, // max infections on location
                 radius: 10, 
@@ -153,6 +209,30 @@
                        "rgba(255, 0, 0, 1)",
                        "rgba(255, 0, 0, 1)"]
             });
+
+            heatmapsInfectionsDay = [];
+            for (var i = 0; i < infectedDates.length; i++) {
+                heatmapsInfectionsDay.push(
+                    new google.maps.visualization.HeatmapLayer({
+                        data: infectedLocationsByDate.get(infectedDates[i]),
+                        map: null,
+                        maxIntensity: 10, // max infections on location
+                        radius: 10, 
+                        opacity: 0.7,
+                        gradient: ["rgba(102, 102, 0, 0)",
+                            "rgba(102, 102, 0, 1)",
+                            "rgba(147, 147, 0, 1)",
+                            "rgba(193, 193, 0, 1)",
+                            "rgba(249, 249, 0, 1)",
+                            "rgba(249, 249, 0, 1)",
+                            "rgba(249, 249, 0, 1)",
+                            "rgba(255, 255, 0, 1)",
+                            "rgba(255, 255, 0, 1)",
+                            "rgba(255, 255, 0, 1)",
+                            "rgba(255, 255, 0, 1)"]
+                    })
+                );
+            }
         }
 
         function initMap() {
@@ -168,13 +248,16 @@
                 },
                 mapTypeId: 'roadmap'
             });
-
-            loadLancet(buildInfectionLayer);
         }
     </script>
 
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAnsJiBidtS98aT4H_XcphFEyFeJUeDa3w&libraries=visualization&callback=initMap">
-    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAnsJiBidtS98aT4H_XcphFEyFeJUeDa3w&libraries=visualization&callback=initMap"></script>
+    <script src="./js/lat_lng_time.js"></script>
+    <script src="./js/lancet_processing.js"></script>
+    <script src="./js/google_processor.js"></script>
+    <script src="./js/intersect.js"></script>
+
+    <script>loadLancet(buildInfectionLayer);</script>
 </body>
 
 </html>

@@ -46,23 +46,31 @@ function processInfectionsFromLancet(allCSV) {
 
     var infections = [];
 
+    var noLatLong = 0;
+    var noValidDate = 0;
+
     var idx = 1;
     while (idx < allTextLines.length) {
         var entry = allTextLines[idx].replace(/\",\"/g, '\"\t\"').replace(/\"/g, '').split('\t');
-        if (valid(entry[latIdx]) && valid(entry[longIdx]) && oneDate(entry[symp], entry[admission], entry[conf])) {
-            infections.push(
-                {lat: entry[latIdx], 
-                long: entry[longIdx], 
-                time: parseInt(oneDate(entry[symp], entry[admission], entry[conf]))} 
-            );
+        if (valid(entry[latIdx]) && valid(entry[longIdx])) {
+            var entryDate = oneDate(entry[symp], entry[admission], entry[conf]);
+            if (entryDate && !isNaN(entryDate) && entryDate > 0) {
+                infections.push(new LatLngTime(entry[latIdx],entry[longIdx],entryDate));
+            } else {
+                noValidDate++;
+                //console.log("No date for: " + entry[0]);
+            }
             //console.log("Logging: " + entry[cityIdx] + ", " + entry[provinceIdx] + ", " + entry[countryIdx]);
         } else {
+            noLatLong++;
             //console.log("Lat Long Not Found for: " + entry[cityIdx] + ", " + entry[provinceIdx] + ", " + entry[countryIdx]);
         }
         idx++;
     }
 
     console.log("Infections Found: " + infections.length);
+    console.log("Infections Without LatLong: " + noLatLong);
+    console.log("Infections without Date: " + noValidDate);
 
     return infections;
 }

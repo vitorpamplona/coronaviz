@@ -16,7 +16,8 @@ function contact(myLoc, inLoc) {
 function group_by_date(locations) {
     var days = new Map();
     for (var i = 0; i < locations.length; i++) {
-        var dayStr = new Date(locations[i].time).toISOString().substring(0, 7);
+        //console.log(locations[i]);
+        var dayStr = new Date(locations[i].time).toISOString().substring(0, 10);
         
         var daySet = days.get(dayStr);
         if (daySet) {

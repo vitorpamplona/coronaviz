@@ -6,14 +6,17 @@ html, body {
   margin: 0;
   padding: 0;
 }
+
 #floating-panel {
   display: flex;
   position: absolute;
   top: 10px;
-  left: 35%;
+  left: 25%;
   z-index: 5;
   text-align: center;
+  margin: auto;
 }
+
 .group {
   border: 1px solid #999;
   border-radius: 3px;
@@ -25,6 +28,10 @@ html, body {
   background-color: white;
   font-family: 'Roboto','sans-serif';
   font-size: small;
+}
+
+.slider {
+  width: 100%;
 }
 
 #radiusNum, #intensityNum, #opacityNum {
